@@ -700,4 +700,11 @@
             </plugin>
         </plugins>
     </reporting>
+    <distributionManagement>
+        <repository>
+            <id>internal</id>
+            <name>mavenserver-releases</name>
+            <url>http://mavenserver.dobi:8081/artifactory/ext-release-local</url>
+        </repository>
+    </distributionManagement>
 </project>
