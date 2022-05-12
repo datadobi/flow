@@ -6,18 +6,19 @@
     <parent>
         <groupId>com.vaadin</groupId>
         <artifactId>flow-project</artifactId>
-        <version>23.0-SNAPSHOT</version>
+        <version>23.0.7</version>
     </parent>
     <artifactId>flow-data</artifactId>
     <name>Flow Data</name>
     <packaging>jar</packaging>
+    <version>23.0.7-datadobi2</version>
 
     <dependencies>
 
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>flow-server</artifactId>
-            <version>${project.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>javax.validation</groupId>
@@ -57,7 +58,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>flow-test-generic</artifactId>
-            <version>${project.version}</version>
+            <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
