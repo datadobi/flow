@@ -291,6 +291,7 @@ public class MessageSender {
                 // Resynchronize has already been requested, but hasn't been sent yet
                 return true;
             case WAITING_FOR_RESPONSE:
+            default:
                 // Resynchronize has already been requested, but response hasn't been received yet
                 return false;
         }
