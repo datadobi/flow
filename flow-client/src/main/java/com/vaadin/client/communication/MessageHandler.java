@@ -27,6 +27,7 @@ import com.vaadin.client.Registry;
 import com.vaadin.client.UILifecycle.UIState;
 import com.vaadin.client.ValueMap;
 import com.vaadin.client.WidgetUtil;
+import com.vaadin.client.communication.MessageSender.ResynchronizationState;
 import com.vaadin.client.flow.ConstantPool;
 import com.vaadin.client.flow.StateNode;
 import com.vaadin.client.flow.StateTree;
@@ -217,7 +218,19 @@ public class MessageHandler {
     protected void handleJSON(final ValueMap valueMap) {
         final int serverId = getServerId(valueMap);
 
-        if (isResynchronize(valueMap) && !isNextExpectedMessage(serverId)) {
+        boolean hasResynchronize = isResynchronize(valueMap);
+
+        if (!hasResynchronize && registry.getMessageSender()
+                .getResynchronizationState() == ResynchronizationState.WAITING_FOR_RESPONSE) {
+            Console.warn(
+                    "Ignoring message from the server as a resync request is ongoing.");
+            return;
+        }
+
+        registry.getMessageSender()
+                .setResynchronizationState(ResynchronizationState.NOT_ACTIVE);
+
+        if (hasResynchronize && !isNextExpectedMessage(serverId)) {
             // Resynchronize request. We must remove any old pending
             // messages and ensure this is handled next. Otherwise we
             // would keep waiting for an older message forever (if this
@@ -819,5 +832,4 @@ public class MessageHandler {
             Command nextResponseSessionExpiredHandler) {
         this.nextResponseSessionExpiredHandler = nextResponseSessionExpiredHandler;
     }
-
 }
