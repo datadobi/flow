@@ -11,7 +11,7 @@
     <artifactId>flow-data</artifactId>
     <name>Flow Data</name>
     <packaging>jar</packaging>
-    <version>23.0.7-datadobi2</version>
+    <version>23.0.7-datadobi3</version>
 
     <dependencies>
 
