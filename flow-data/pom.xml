@@ -11,14 +11,14 @@
     <artifactId>flow-data</artifactId>
     <name>Flow Data</name>
     <packaging>jar</packaging>
-    <version>23.0.7-datadobi4-SNAPSHOT</version>
+    <version>23.0.7-datadobi4</version>
 
     <dependencies>
 
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>flow-server</artifactId>
-            <version>23.0.7-datadobi1-SNAPSHOT</version>
+            <version>23.0.7-datadobi4</version>
         </dependency>
         <dependency>
             <groupId>javax.validation</groupId>

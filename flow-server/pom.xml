@@ -10,7 +10,7 @@
     <artifactId>flow-server</artifactId>
     <name>Flow Server</name>
     <packaging>jar</packaging>
-    <version>23.0.7-datadobi1-SNAPSHOT</version>
+    <version>23.0.7-datadobi4</version>
 
     <dependencies>
 
