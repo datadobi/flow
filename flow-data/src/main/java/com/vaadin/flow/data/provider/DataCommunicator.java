@@ -112,9 +112,9 @@ public class DataCommunicator<T> implements Serializable {
     private HashSet<T> updatedData = new HashSet<>();
 
     private SerializableConsumer<ExecutionContext> flushRequest;
-    private NodeOwner ownerOfFlushRequest = NullOwner.get();
+    private StateTree.ExecutionRegistration flushRequestRegistration;
     private SerializableConsumer<ExecutionContext> flushUpdatedDataRequest;
-    private NodeOwner ownerOfFlushUpdatedDataRequest = NullOwner.get();
+    private StateTree.ExecutionRegistration flushUpdatedDataRequestRegistration;
 
     private CallbackDataProvider.CountCallback<T, ?> countCallback;
     private int itemCountEstimate = -1;
@@ -1090,13 +1090,12 @@ public class DataCommunicator<T> implements Serializable {
     }
 
     private void requestFlush(boolean forced) {
-        NodeOwner currentOwner = stateNode.getOwner();
-        if (ownerOfFlushRequest != NullOwner.get()
-                && currentOwner != NullOwner.get()
-                && currentOwner != ownerOfFlushRequest) {
+        if (flushRequestRegistration != null
+                && !flushRequestRegistration.canExecute()) {
             flushRequest = null;
         }
         if ((flushRequest == null || forced) && fetchEnabled) {
+            flushRequestRegistration = null;
             flushRequest = context -> {
                 if (!context.isClientSideInitialized()) {
                     reset();
@@ -1105,32 +1104,27 @@ public class DataCommunicator<T> implements Serializable {
                 flush();
                 flushRequest = null;
             };
-            stateNode.runWhenAttached(ui -> {
-                StateTree stateTree = ui.getInternals().getStateTree();
-                ownerOfFlushRequest = stateTree;
-                stateTree.beforeClientResponse(stateNode, flushRequest);
-            });
+            stateNode.runWhenAttached(ui -> flushRequestRegistration = ui
+                    .getInternals().getStateTree()
+                    .beforeClientResponse(stateNode, flushRequest));
         }
     }
 
     private void requestFlushUpdatedData() {
-        NodeOwner currentOwner = stateNode.getOwner();
-        if (ownerOfFlushUpdatedDataRequest != NullOwner.get()
-                && currentOwner != NullOwner.get()
-                && currentOwner != ownerOfFlushUpdatedDataRequest) {
+        if (flushUpdatedDataRequestRegistration != null
+                && !flushUpdatedDataRequestRegistration.canExecute()) {
             flushUpdatedDataRequest = null;
         }
         if (flushUpdatedDataRequest == null) {
+            flushUpdatedDataRequestRegistration = null;
             flushUpdatedDataRequest = context -> {
                 flushUpdatedData();
                 flushUpdatedDataRequest = null;
             };
-            stateNode.runWhenAttached(ui -> {
-                StateTree stateTree = ui.getInternals().getStateTree();
-                ownerOfFlushUpdatedDataRequest = stateTree;
-                stateTree.beforeClientResponse(stateNode,
-                        flushUpdatedDataRequest);
-            });
+            stateNode.runWhenAttached(
+                    ui -> flushUpdatedDataRequestRegistration = ui
+                            .getInternals().getStateTree().beforeClientResponse(
+                                    stateNode, flushUpdatedDataRequest));
         }
     }
 
