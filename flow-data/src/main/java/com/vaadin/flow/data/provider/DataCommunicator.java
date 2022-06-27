@@ -42,12 +42,7 @@ import com.vaadin.flow.dom.Element;
 import com.vaadin.flow.function.SerializableComparator;
 import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.function.SerializableSupplier;
-import com.vaadin.flow.internal.ExecutionContext;
-import com.vaadin.flow.internal.JsonUtils;
-import com.vaadin.flow.internal.NodeOwner;
-import com.vaadin.flow.internal.Range;
-import com.vaadin.flow.internal.StateNode;
-import com.vaadin.flow.internal.StateTree;
+import com.vaadin.flow.internal.*;
 import com.vaadin.flow.shared.Registration;
 import com.vaadin.flow.shared.communication.PushMode;
 
@@ -117,7 +112,9 @@ public class DataCommunicator<T> implements Serializable {
     private HashSet<T> updatedData = new HashSet<>();
 
     private SerializableConsumer<ExecutionContext> flushRequest;
+    private NodeOwner ownerOfFlushRequest = NullOwner.get();
     private SerializableConsumer<ExecutionContext> flushUpdatedDataRequest;
+    private NodeOwner ownerOfFlushUpdatedDataRequest = NullOwner.get();
 
     private CallbackDataProvider.CountCallback<T, ?> countCallback;
     private int itemCountEstimate = -1;
@@ -1093,6 +1090,12 @@ public class DataCommunicator<T> implements Serializable {
     }
 
     private void requestFlush(boolean forced) {
+        NodeOwner currentOwner = stateNode.getOwner();
+        if (ownerOfFlushRequest != NullOwner.get()
+                && currentOwner != NullOwner.get()
+                && currentOwner != ownerOfFlushRequest) {
+            flushRequest = null;
+        }
         if ((flushRequest == null || forced) && fetchEnabled) {
             flushRequest = context -> {
                 if (!context.isClientSideInitialized()) {
@@ -1102,19 +1105,32 @@ public class DataCommunicator<T> implements Serializable {
                 flush();
                 flushRequest = null;
             };
-            stateNode.runWhenAttached(ui -> ui.getInternals().getStateTree()
-                    .beforeClientResponse(stateNode, flushRequest));
+            stateNode.runWhenAttached(ui -> {
+                StateTree stateTree = ui.getInternals().getStateTree();
+                ownerOfFlushRequest = stateTree;
+                stateTree.beforeClientResponse(stateNode, flushRequest);
+            });
         }
     }
 
     private void requestFlushUpdatedData() {
+        NodeOwner currentOwner = stateNode.getOwner();
+        if (ownerOfFlushUpdatedDataRequest != NullOwner.get()
+                && currentOwner != NullOwner.get()
+                && currentOwner != ownerOfFlushUpdatedDataRequest) {
+            flushUpdatedDataRequest = null;
+        }
         if (flushUpdatedDataRequest == null) {
             flushUpdatedDataRequest = context -> {
                 flushUpdatedData();
                 flushUpdatedDataRequest = null;
             };
-            stateNode.runWhenAttached(ui -> ui.getInternals().getStateTree()
-                    .beforeClientResponse(stateNode, flushUpdatedDataRequest));
+            stateNode.runWhenAttached(ui -> {
+                StateTree stateTree = ui.getInternals().getStateTree();
+                ownerOfFlushUpdatedDataRequest = stateTree;
+                stateTree.beforeClientResponse(stateNode,
+                        flushUpdatedDataRequest);
+            });
         }
     }
 
