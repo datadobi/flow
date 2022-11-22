@@ -222,6 +222,9 @@ public abstract class AbstractNavigationStateRenderer
         ui.getInternals().showRouteTarget(event.getLocation(),
                 componentInstance, routerLayouts);
 
+        // datadobi: moved back to before notifying the AfterNavigationHandlers
+        updatePageTitle(event, componentInstance);
+
         int statusCode = locationChangeEvent.getStatusCode();
         validateStatusCode(statusCode, routeTargetType);
 
@@ -234,8 +237,6 @@ public abstract class AbstractNavigationStateRenderer
         fireAfterNavigationListeners(
                 new AfterNavigationEvent(locationChangeEvent),
                 afterNavigationHandlers);
-
-        updatePageTitle(event, componentInstance);
 
         return statusCode;
     }
