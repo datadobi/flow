@@ -8,6 +8,7 @@
         <version>23.2-SNAPSHOT</version>
     </parent>
     <artifactId>flow-server</artifactId>
+    <version>23.2.6-datadobi1</version>
     <name>Flow Server</name>
     <packaging>jar</packaging>
 
@@ -18,7 +19,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>flow-push</artifactId>
-            <version>${project.version}</version>
+            <version>23.2.6</version>
         </dependency>
 
         <!-- DefaultApplicationConfigurationFactory is declared as an OSGi
@@ -160,7 +161,7 @@
         <dependency>
             <groupId>com.vaadin</groupId>
             <artifactId>flow-test-generic</artifactId>
-            <version>${project.version}</version>
+            <version>23.2.6</version>
             <scope>test</scope>
         </dependency>
 
